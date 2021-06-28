@@ -1,0 +1,275 @@
+if (window.top !== window.self) window.top.location.replace(window.self.location.href);
+
+function toggleLayer( whichLayer )
+{
+  var elem, vis;
+  if( document.getElementById ) // this is the way the standards work
+    elem = document.getElementById( whichLayer );
+  else if( document.all ) // this is the way old msie versions work
+      elem = document.all[whichLayer];
+  else if( document.layers ) // this is the way nn4 works
+    elem = document.layers[whichLayer];
+  vis = elem.style;
+  // if the style.display value is blank we try to figure it out here
+  if(vis.display==''&&elem.offsetWidth!=undefined&&elem.offsetHeight!=undefined)
+    vis.display = (elem.offsetWidth!=0&&elem.offsetHeight!=0)?'block':'none';
+  vis.display = (vis.display==''||vis.display=='block')?'none':'block';
+}
+
+function SimpleSwap(el,which){
+  el.src=el.getAttribute(which || "origsrc");
+}
+
+function SimpleSwapSetup(){
+  var x = document.getElementsByTagName("img");
+  for (var i=0;i<x.length;i++){
+    var oversrc = x[i].getAttribute("oversrc");
+    if (!oversrc) continue;
+      
+    // preload image
+    // comment the next two lines to disable image pre-loading
+    x[i].oversrc_img = new Image();
+    x[i].oversrc_img.src=oversrc;
+    // set event handlers
+    x[i].onmouseover = new Function("SimpleSwap(this,'oversrc');");
+    x[i].onmouseout = new Function("SimpleSwap(this);");
+    // save original src
+    x[i].setAttribute("origsrc",x[i].src);
+  }
+}
+
+
+
+
+
+
+
+function hidediv(id) {
+	//safe function to hide an element with a specified id
+	
+	//alert(id);
+
+	if (document.getElementById) { // DOM3 = IE5, NS6
+		document.getElementById(id).style.display = 'none';
+	}
+	else {
+		if (document.layers) { // Netscape 4
+			document.id.display = 'none';
+		}
+		else { // IE 4
+			document.all.id.style.display = 'none';
+		}
+	}
+}
+
+function showdiv(id) {
+	//safe function to show an element with a specified id
+		  
+	if (document.getElementById) { // DOM3 = IE5, NS6
+		document.getElementById(id).style.display = 'block';
+	}
+	else {
+		if (document.layers) { // Netscape 4
+			document.id.display = 'block';
+		}
+		else { // IE 4
+			document.all.id.style.display = 'block';
+		}
+	}
+}
+
+function getXmlHttpRequestObject() {
+	if (window.XMLHttpRequest) {
+		return new XMLHttpRequest();
+	} else if(window.ActiveXObject) {
+		return new ActiveXObject("Microsoft.XMLHTTP");
+	} else {
+		alert("Your Browser is Old!\nIt's about time to upgrade don't you think?");
+	}
+}
+
+var searchReq = getXmlHttpRequestObject();
+
+//Called from keyup on the search textbox.
+//Starts the AJAX request.
+function searchSuggest() {
+
+	if (searchReq.readyState == 4 || searchReq.readyState == 0) {
+        //console.log("zzz");
+		//if(document.getElementById('query').value)
+	//	{
+	//	var str = escape(document.getElementById('query').value);
+        var qu;
+		var str = document.getElementById('query').value;
+        var mob_str = document.getElementById('mob_query').value;
+		if(str.length > 0) 
+            {
+              qu = str;
+            }
+        if(mob_str.length > 0) 
+            {
+              qu = mob_str;
+            }
+        if(qu.length > 0)
+        {
+            searchReq.open("GET", '/get/search-suggest/?q=' + qu, true);
+            searchReq.onreadystatechange = handleSearchSuggest; 
+            searchReq.send(null);
+        }
+	//	}
+	}		
+}
+
+//Called when the AJAX response is returned.
+function handleSearchSuggest() {
+	if (searchReq.readyState == 4) {
+		var ss = document.getElementById('search_suggest')
+		if(searchReq.responseText.toString()) ss.innerHTML = searchReq.responseText.toString();//'';
+		/*var str = searchReq.responseText.split("\n");
+		for(i=0; i < str.length - 1; i++) {
+			//Build our element string.  This is cleaner using the DOM, but
+			//IE doesn't support dynamically added attributes.
+		/*	var suggest = '<div onmouseover="javascript:suggestOver(this);" ';
+			suggest += 'onmouseout="javascript:suggestOut(this);" ';
+			suggest += 'onclick="javascript:setSearch(this.innerHTML);" ';
+			suggest += 'class="suggest_link">' + str[i] + '</div>';
+			ss.innerHTML += suggest;
+			ss.innerHTML += str[i];
+		}*/
+	}
+}
+
+//Mouse over function
+function suggestOver(div_value) {
+	div_value.className = 'suggest_link_over';
+}
+//Mouse out function
+function suggestOut(div_value) {
+	div_value.className = 'suggest_link';
+}
+//Click function
+function setSearch(value) {
+	document.getElementById('query').value = value;
+	//document.getElementById('search_suggest').innerHTML = '';
+}
+
+
+function changeCssClass(objDivID)
+{
+	
+			if(document.getElementById(objDivID).className==objDivID + '_s')
+            {
+                document.getElementById(objDivID).className = objDivID + '_m';				
+			}
+			else
+			if(document.getElementById(objDivID).className==objDivID + '_m')
+            {
+                document.getElementById(objDivID).className = objDivID + '_s';				
+			}
+
+}
+
+
+function show(trid)  
+        {  
+        	//var urri = "/get/favorites/tot/?nocache=" + (new Date().getTime()) + Math.random();
+        	var urri = "/get/favorites/?trid=" + trid + "&nocache=" + (new Date().getTime()) + Math.random();
+            $.ajax({  
+                url: urri,  
+                cache: false,  
+                success: function(html){  
+                	//alert(html);
+                    $("#favors").html(html);  
+                }  
+            });  
+        }  
+      
+
+	
+function MM_jumpMenu(targ,selObj,restore){ //v3.0
+  eval(targ+".location='"+selObj.options[selObj.selectedIndex].value+"'");
+  if (restore) selObj.selectedIndex=0;
+}
+
+function validateEmail(email) {
+  var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  return re.test(email);
+}
+
+
+$('#clhis').click(function() {
+
+ 	$.ajax({  
+                url: "/get/search-clear/", 
+                cache: false,
+                success: function(html){  
+                    $("#search_suggest").html(html);  
+                }  
+                });
+ 	
+
+});
+
+$('#burger').click(function () {
+   
+
+   	$(".burger").hide();
+   	
+     $(".burger_close").css("display","inline-block");
+    $(".mob_menu").show();
+     $(".burger_close").show();
+
+});
+
+ 
+
+$('.mob_search').click(function () {
+
+    $(".mob_menu").hide();
+    $(".new_search").toggle();
+
+});
+
+$('#burger_close').click(function () {
+
+    $(".mob_menu").hide();
+    $(".burger_close").hide();
+    $(".burger").show();
+
+});
+
+function secondsTimeSpanToHMS(s) {
+    var h = Math.floor(s/3600); //Get whole hours
+    s -= h*3600;
+    var m = Math.floor(s/60); //Get remaining minutes
+    s -= m*60;
+    return (m < 10 ? '0'+m : m)+":"+(s < 10 ? '0'+s : s); //zero padding on minutes and seconds
+}
+
+$("#clickonlongo").click(function () { 
+
+
+$(".icon-btn--loops").fadeOut(50).fadeIn(100).fadeOut(50).fadeIn(100);
+
+
+});
+
+$("#clickonfavs").click(function () { 
+
+
+$(".icon-btn--fav").fadeOut(50).fadeIn(100).fadeOut(50).fadeIn(100);
+
+
+});
+
+function getPlayerId(selector) {
+        var player = document.querySelector(selector);
+        if (player === null) {
+          throw new Error('Incorrect selector for player');
+        }
+        return player.getAttribute('data-player-id');
+      }
+
+function updatePlaylist(playerID, playlistUrl) {
+        ml.loadPlaylist(playerID, playlistUrl);
+      }
